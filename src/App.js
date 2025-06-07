@@ -2,7 +2,7 @@ import {useEffect, useState, useCallback} from 'react'
 import ScoreBoard from './components/ScoreBoard'
 import UrchinsDestroyed from './components/UrchinsDestroyed'
 import LandingPage from './LandingPage'
-import { ReefBackgroundGradient, ReefDecorSVGs, reefStyles } from './ReefTheme'
+import { ReefDecorSVGs, reefStyles } from './ReefTheme'
 import {
   snapper,
   lobster,
@@ -14,6 +14,7 @@ import {
   candyImageMap
 } from './candyImageMap'
 import UrchinDestructionAnimation from './UrchinDestructionAnimation'
+import ThreeWaterBackground from './ThreeWaterBackground'
 
 const width = 8
 let firstTimeTryingToMatchUrchin = true
@@ -440,7 +441,7 @@ const App = () => {
           position: 'relative',
           background: 'none'
         }}>
-          <ReefBackgroundGradient />
+          <ThreeWaterBackground />
           <ReefDecorSVGs />
           <div
             className="reef-game-container"
