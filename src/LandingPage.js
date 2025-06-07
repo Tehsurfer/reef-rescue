@@ -96,7 +96,7 @@ const LandingPage = ({ onStart }) => (
         fontWeight: 700,
         textShadow: '0 2px 8px #b3e5fc'
       }}>
-        Reef Saver
+        Reef Rescue
       </h1>
       <p style={{
         fontSize: 18,
