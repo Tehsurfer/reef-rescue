@@ -36,8 +36,9 @@ const App = () => {
   const [messageBoard, setMessageBoard] = useState(null)
   const [showLanding, setShowLanding] = useState(true)
   const [urchinAnimationTrigger, setUrchinAnimationTrigger] = useState(0)
-  const [timer, setTimer] = useState(120) // 2 minutes in seconds
+  const [timer, setTimer] = useState(90) // 1 minute and 30 seconds in seconds
   const [timerActive, setTimerActive] = useState(true)
+  const [actionsEnabled, setActionsEnabled] = useState(true)
 
   // For mobile touch support
   const [touchStartId, setTouchStartId] = useState(null)
@@ -55,6 +56,7 @@ const App = () => {
       setTimer(t => {
         if (t <= 1) {
           setTimerActive(false)
+          setActionsEnabled(false) // Disable actions when timer hits 0
           return 0
         }
         return t - 1
@@ -162,14 +164,34 @@ const App = () => {
     }
   }, [currentColorArrangement])
 
+  // Enable/disable user actions function
+  const setUserActionsEnabled = (enabled) => {
+    setActionsEnabled(enabled)
+  }
+
+  // Restart handler
+  const handleRestart = () => {
+    setTimer(120)
+    setTimerActive(true)
+    setActionsEnabled(true)
+    setScoreDisplay(0)
+    setUrchinsDestroyed(0)
+    setMessageBoard(null)
+    setShowLanding(false)
+    setCurrentColorArrangement([])
+    setTimeout(() => createBoard(), 0)
+  }
+
   const dragStart = (e) => {
+    if (!actionsEnabled) return
     setSquareBeingDragged(e.target)
   }
   const dragDrop = (e) => {
+    if (!actionsEnabled) return
     setSquareBeingReplaced(e.target)
   }
   const dragEnd = () => {
-    if (!squareBeingDragged || !squareBeingReplaced) return
+    if (!actionsEnabled) return
 
     const squareBeingDraggedId = parseInt(squareBeingDragged.getAttribute('data-id'))
     const squareBeingReplacedId = parseInt(squareBeingReplaced.getAttribute('data-id'))
@@ -209,6 +231,7 @@ const App = () => {
 
   // Touch event handlers for mobile
   const handleTouchStart = (e) => {
+    if (!actionsEnabled) return
     const id = parseInt(e.target.getAttribute('data-id'))
     setTouchStartId(id)
     setTouchDragImage(currentColorArrangement[id])
@@ -223,6 +246,7 @@ const App = () => {
   }
 
   const handleTouchMove = (e) => {
+    if (!actionsEnabled) return
     // Prevent scrolling while swiping
     e.preventDefault()
     const touch = e.touches[0]
@@ -238,6 +262,7 @@ const App = () => {
   }
 
   const handleTouchEnd = () => {
+    if (!actionsEnabled) return
     setIsTouchDragging(false)
     setTouchDragImage(null)
     if (touchStartId !== null && touchEndId !== null && touchStartId !== touchEndId) {
@@ -391,18 +416,6 @@ const App = () => {
       randomColorArrangement.push(randomColor)
     }
     setCurrentColorArrangement(randomColorArrangement)
-  }
-
-  // Restart handler
-  const handleRestart = () => {
-    setTimer(120)
-    setTimerActive(true)
-    setScoreDisplay(0)
-    setUrchinsDestroyed(0)
-    setMessageBoard(null)
-    setShowLanding(false)
-    setCurrentColorArrangement([])
-    setTimeout(() => createBoard(), 0)
   }
 
   useEffect(() => {
