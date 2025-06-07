@@ -8,6 +8,8 @@ import purpleCandy from './images/purple-candy.png'
 import redCandy from './images/red-candy.png'
 import yellowCandy from './images/yellow-candy.png'
 import blank from './images/blank.png'
+import LandingPage from './LandingPage'
+import { ReefBackgroundGradient, ReefDecorSVGs, reefStyles } from './ReefTheme'
 
 const width = 8
 let firstTimeTryingToMatchUrchin = true
@@ -27,6 +29,7 @@ const App = () => {
   const [scoreDisplay, setScoreDisplay] = useState(0)
   const [urchinsDestroyed, setUrchinsDestroyed] = useState(0)
   const [messageBoard, setMessageBoard] = useState(null)
+  const [showLanding, setShowLanding] = useState(true)
 
   // For mobile touch support
   const [touchStartId, setTouchStartId] = useState(null)
@@ -411,57 +414,115 @@ const App = () => {
 
 
   return (
-    <div className="app">
-      <div className="game">
-        {currentColorArrangement.map((candyColor, index) => (
-          <img
-            key={index}
-            src={candyColor}
-            alt={candyColor}
-            data-id={index}
-            draggable={true}
-            onDragStart={dragStart}
-            onDragOver={(e) => e.preventDefault()}
-            onDragEnter={(e) => e.preventDefault()}
-            onDragLeave={(e) => e.preventDefault()}
-            onDrop={dragDrop}
-            onDragEnd={dragEnd}
-            // Mobile touch events
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
+    <>
+      <style>{reefStyles}</style>
+      {showLanding ? (
+        <LandingPage onStart={() => setShowLanding(false)} />
+      ) : (
+        <div style={{
+          minHeight: '100vh',
+          minWidth: '100vw',
+          position: 'relative',
+          background: 'none'
+        }}>
+          <ReefBackgroundGradient />
+          <ReefDecorSVGs />
+          <div
+            className="reef-game-container"
             style={{
-              touchAction: 'none'
+              position: 'relative',
+              zIndex: 1,
             }}
-          />
-        ))}
-        {/* Touch drag preview image */}
-        {isTouchDragging && touchDragImage && (
-          <img
-            src={touchDragImage}
-            alt="drag-preview"
-            style={{
-              position: 'fixed',
-              left: touchDragPos.x - 32,
-              top: touchDragPos.y - 32,
-              width: 64,
-              height: 64,
-              pointerEvents: 'none',
-              zIndex: 1000,
-              opacity: 0.8,
-              borderRadius: 8,
-              boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
-            }}
-          />
-        )}
-      </div>
-      <div>
-        <div><ScoreBoard score={scoreDisplay}/></div>
-        <div>Urchins can't be touched! Match snapper or lobsters nearby to eat them!</div>
-        <div><UrchinsDestroyed urchinsDestroyed={urchinsDestroyed}/></div>
-        <div>{messageBoard}</div>
-      </div>
-    </div>
+          >
+            <div
+              className="reef-game-board"
+            >
+              {currentColorArrangement.map((candyColor, index) => (
+                <img
+                  key={index}
+                  src={candyColor}
+                  alt={candyColor}
+                  data-id={index}
+                  draggable={true}
+                  onDragStart={dragStart}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDragEnter={(e) => e.preventDefault()}
+                  onDragLeave={(e) => e.preventDefault()}
+                  onDrop={dragDrop}
+                  onDragEnd={dragEnd}
+                  // Mobile touch events
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
+                />
+              ))}
+              {/* Touch drag preview image */}
+              {isTouchDragging && touchDragImage && (
+                <img
+                  src={touchDragImage}
+                  alt="drag-preview"
+                  style={{
+                    position: 'fixed',
+                    left: touchDragPos.x - 32,
+                    top: touchDragPos.y - 32,
+                    width: 64,
+                    height: 64,
+                    pointerEvents: 'none',
+                    zIndex: 1000,
+                    opacity: 0.8,
+                    borderRadius: 8,
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+                  }}
+                />
+              )}
+            </div>
+            <div
+              className="reef-scoreboard"
+            >
+              <div style={{
+                fontSize: 20,
+                color: '#0288d1',
+                fontWeight: 700,
+                letterSpacing: 1,
+                marginBottom: 6,
+                fontFamily: '"Trebuchet MS", "Verdana", "Arial", sans-serif',
+                textShadow: '0 2px 8px #b3e5fc'
+              }}>
+                <ScoreBoard score={scoreDisplay}/>
+              </div>
+              <div style={{
+                fontSize: 13,
+                color: '#388e3c',
+                margin: '8px 0 12px 0',
+                fontWeight: 600,
+                fontFamily: '"Trebuchet MS", "Verdana", "Arial", sans-serif',
+                textShadow: '0 1px 4px #b3e5fc'
+              }}>
+                Urchins can't be touched! Match snapper or lobsters nearby to eat them!
+              </div>
+              <div style={{
+                fontSize: 14,
+                color: '#7e57c2',
+                marginBottom: 8,
+                fontWeight: 600,
+                fontFamily: '"Trebuchet MS", "Verdana", "Arial", sans-serif'
+              }}>
+                <UrchinsDestroyed urchinsDestroyed={urchinsDestroyed}/>
+              </div>
+              <div style={{
+                fontSize: 14,
+                color: '#0288d1',
+                minHeight: 22,
+                fontWeight: 500,
+                fontFamily: '"Trebuchet MS", "Verdana", "Arial", sans-serif'
+              }}>
+                {messageBoard}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
 
