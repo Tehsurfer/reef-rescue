@@ -13,6 +13,7 @@ import {
   blank,
   candyImageMap
 } from './candyImageMap'
+import UrchinDestructionAnimation from './UrchinDestructionAnimation'
 
 const width = 8
 let firstTimeTryingToMatchUrchin = true
@@ -33,6 +34,7 @@ const App = () => {
   const [urchinsDestroyed, setUrchinsDestroyed] = useState(0)
   const [messageBoard, setMessageBoard] = useState(null)
   const [showLanding, setShowLanding] = useState(true)
+  const [urchinAnimationTrigger, setUrchinAnimationTrigger] = useState(0)
 
   // For mobile touch support
   const [touchStartId, setTouchStartId] = useState(null)
@@ -346,9 +348,10 @@ const App = () => {
         })
       }
     })
-    if (urchinsDestroyedThisRoundCount>0)
+    if (urchinsDestroyedThisRoundCount>0) {
       displayMessage(urchinsDestroyedThisRoundCount + ' urchins destroyed! Nice!')
-
+      setUrchinAnimationTrigger(t => t + 1) // trigger animation
+    }
   }
 
   const displayMessage = (message) => {
@@ -427,6 +430,7 @@ const App = () => {
   return (
     <>
       <style>{reefStyles}</style>
+      <UrchinDestructionAnimation trigger={urchinAnimationTrigger} />
       {showLanding ? (
         <LandingPage onStart={() => setShowLanding(false)} />
       ) : (
