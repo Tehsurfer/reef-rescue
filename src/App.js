@@ -1,15 +1,18 @@
 import {useEffect, useState, useCallback} from 'react'
 import ScoreBoard from './components/ScoreBoard'
 import UrchinsDestroyed from './components/UrchinsDestroyed'
-import snapper from './images/snapper.png'
-import lobster from './images/lobster.png'
-import urchin from './images/urchin.png'
-import purpleCandy from './images/purple-candy.png'
-import redCandy from './images/red-candy.png'
-import yellowCandy from './images/yellow-candy.png'
-import blank from './images/blank.png'
 import LandingPage from './LandingPage'
 import { ReefBackgroundGradient, ReefDecorSVGs, reefStyles } from './ReefTheme'
+import {
+  snapper,
+  lobster,
+  urchin,
+  purpleCandy,
+  redCandy,
+  yellowCandy,
+  blank,
+  candyImageMap
+} from './candyImageMap'
 
 const width = 8
 let firstTimeTryingToMatchUrchin = true
@@ -145,13 +148,17 @@ const App = () => {
     setSquareBeingReplaced(e.target)
   }
   const dragEnd = () => {
+    if (!squareBeingDragged || !squareBeingReplaced) return
+
     const squareBeingDraggedId = parseInt(squareBeingDragged.getAttribute('data-id'))
     const squareBeingReplacedId = parseInt(squareBeingReplaced.getAttribute('data-id'))
 
-    const draggedSrc = squareBeingDragged.getAttribute('src')
-    const replacedSrc = squareBeingReplaced.getAttribute('src')
+    // Use the type key instead of src string
+    const draggedType = getTileType(squareBeingDraggedId)
+    const replacedType = getTileType(squareBeingReplacedId)
 
-    if (draggedSrc.includes('urchin') || replacedSrc.includes('urchin')) {
+    // Check for urchin using the type key
+    if (draggedType === urchin || replacedType === urchin) {
       if(firstTimeTryingToMatchUrchin){
         alert('Urchins must be eaten by large snapper or lobsters! Match one nearby to remove them')
         firstTimeTryingToMatchUrchin = false
@@ -161,14 +168,11 @@ const App = () => {
       return false
     }
 
-    currentColorArrangement[squareBeingReplacedId] = draggedSrc
-    currentColorArrangement[squareBeingDraggedId] = replacedSrc
+    currentColorArrangement[squareBeingReplacedId] = draggedType
+    currentColorArrangement[squareBeingDraggedId] = replacedType
 
     const validMoves = nearbyIds(squareBeingDraggedId)
-    console.log(validMoves)
-
     const validMove = validMoves.includes(squareBeingReplacedId)
-
 
     if (squareBeingReplacedId &&
       validMove &&
@@ -176,8 +180,8 @@ const App = () => {
       setSquareBeingDragged(null)
       setSquareBeingReplaced(null)
     } else {
-      currentColorArrangement[squareBeingReplacedId] = squareBeingReplaced.getAttribute('src')
-      currentColorArrangement[squareBeingDraggedId] = squareBeingDragged.getAttribute('src')
+      currentColorArrangement[squareBeingReplacedId] = replacedType
+      currentColorArrangement[squareBeingDraggedId] = draggedType
       setCurrentColorArrangement([...currentColorArrangement])
     }
   }
@@ -249,10 +253,10 @@ const App = () => {
     const squareBeingDraggedId = parseInt(dragged.getAttribute('data-id'))
     const squareBeingReplacedId = parseInt(replaced.getAttribute('data-id'))
 
-    const draggedSrc = dragged.getAttribute('src')
-    const replacedSrc = replaced.getAttribute('src')
+    const draggedType = getTileType(squareBeingDraggedId)
+    const replacedType = getTileType(squareBeingReplacedId)
 
-    if (draggedSrc.includes('urchin') || replacedSrc.includes('urchin')) {
+    if (draggedType === urchin || replacedType === urchin) {
       if(firstTimeTryingToMatchUrchin){
         alert('Urchins must be eaten by large snapper or lobsters! Match one nearby to remove them')
         firstTimeTryingToMatchUrchin = false
@@ -262,8 +266,8 @@ const App = () => {
       return false
     }
 
-    currentColorArrangement[squareBeingReplacedId] = draggedSrc
-    currentColorArrangement[squareBeingDraggedId] = replacedSrc
+    currentColorArrangement[squareBeingReplacedId] = draggedType
+    currentColorArrangement[squareBeingDraggedId] = replacedType
 
     const validMoves = nearbyIds(squareBeingDraggedId)
     const validMove = validMoves.includes(squareBeingReplacedId)
@@ -274,10 +278,17 @@ const App = () => {
       setSquareBeingDragged(null)
       setSquareBeingReplaced(null)
     } else {
-      currentColorArrangement[squareBeingReplacedId] = replacedSrc
-      currentColorArrangement[squareBeingDraggedId] = draggedSrc
+      currentColorArrangement[squareBeingReplacedId] = replacedType
+      currentColorArrangement[squareBeingDraggedId] = draggedType
       setCurrentColorArrangement([...currentColorArrangement])
     }
+  }
+
+  // Helper to get the type key from a tile index
+  const getTileType = (index) => {
+    // Find the key in candyImageMap that matches the image src at this index
+    // Since currentColorArrangement[index] is the image import (e.g. snapper), just return it
+    return currentColorArrangement[index]
   }
 
   const nearbyIds = (id) => {
@@ -438,10 +449,8 @@ const App = () => {
               className="reef-game-board"
             >
               {currentColorArrangement.map((candyColor, index) => (
-                <img
+                <div
                   key={index}
-                  src={candyColor}
-                  alt={candyColor}
                   data-id={index}
                   draggable={true}
                   onDragStart={dragStart}
@@ -454,7 +463,18 @@ const App = () => {
                   onTouchStart={handleTouchStart}
                   onTouchMove={handleTouchMove}
                   onTouchEnd={handleTouchEnd}
-                />
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    aspectRatio: '1/1',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    userSelect: 'none'
+                  }}
+                >
+                  {candyImageMap[candyColor]}
+                </div>
               ))}
               {/* Touch drag preview image */}
               {isTouchDragging && touchDragImage && (
