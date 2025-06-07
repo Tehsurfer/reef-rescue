@@ -36,6 +36,8 @@ const App = () => {
   const [messageBoard, setMessageBoard] = useState(null)
   const [showLanding, setShowLanding] = useState(true)
   const [urchinAnimationTrigger, setUrchinAnimationTrigger] = useState(0)
+  const [timer, setTimer] = useState(120) // 2 minutes in seconds
+  const [timerActive, setTimerActive] = useState(true)
 
   // For mobile touch support
   const [touchStartId, setTouchStartId] = useState(null)
@@ -44,6 +46,22 @@ const App = () => {
   const [touchDragImage, setTouchDragImage] = useState(null)
   const [touchDragPos, setTouchDragPos] = useState({ x: 0, y: 0 })
   const [isTouchDragging, setIsTouchDragging] = useState(false)
+
+  // Timer effect (countdown)
+  useEffect(() => {
+    if (!timerActive) return
+    if (timer <= 0) return
+    const interval = setInterval(() => {
+      setTimer(t => {
+        if (t <= 1) {
+          setTimerActive(false)
+          return 0
+        }
+        return t - 1
+      })
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [timerActive, timer])
 
   const checkForColumnOfFour = useCallback(() => {
     for (let i = 0; i <= 39; i++) {
@@ -375,6 +393,18 @@ const App = () => {
     setCurrentColorArrangement(randomColorArrangement)
   }
 
+  // Restart handler
+  const handleRestart = () => {
+    setTimer(120)
+    setTimerActive(true)
+    setScoreDisplay(0)
+    setUrchinsDestroyed(0)
+    setMessageBoard(null)
+    setShowLanding(false)
+    setCurrentColorArrangement([])
+    setTimeout(() => createBoard(), 0)
+  }
+
   useEffect(() => {
     createBoard()
   }, [])
@@ -443,16 +473,8 @@ const App = () => {
         }}>
           <ThreeWaterBackground />
           <ReefDecorSVGs />
-          <div
-            className="reef-game-container"
-            style={{
-              position: 'relative',
-              zIndex: 1,
-            }}
-          >
-            <div
-              className="reef-game-board"
-            >
+          <div className="reef-game-container" style={{ position: 'relative', zIndex: 1 }}>
+            <div className="reef-game-board">
               {currentColorArrangement.map((candyColor, index) => (
                 <div
                   key={index}
@@ -501,9 +523,7 @@ const App = () => {
                 />
               )}
             </div>
-            <div
-              className="reef-scoreboard"
-            >
+            <div className="reef-scoreboard">
               <div style={{
                 fontSize: 20,
                 color: '#0288d1',
@@ -514,6 +534,39 @@ const App = () => {
                 textShadow: '0 2px 8px #b3e5fc'
               }}>
                 <ScoreBoard score={scoreDisplay}/>
+              </div>
+              {/* Timer and Restart Button */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                marginBottom: 8
+              }}>
+                <span style={{
+                  fontSize: 16,
+                  color: '#0288d1',
+                  fontWeight: 600,
+                  fontFamily: '"Trebuchet MS", "Verdana", "Arial", sans-serif'
+                }}>
+                  ⏱ {Math.floor(timer / 60).toString().padStart(2, '0')}:{(timer % 60).toString().padStart(2, '0')}
+                </span>
+                <button
+                  style={{
+                    background: '#fff',
+                    color: '#0288d1',
+                    border: '1.5px solid #0288d1',
+                    borderRadius: 6,
+                    fontWeight: 700,
+                    fontSize: 14,
+                    padding: '2px 12px',
+                    cursor: 'pointer',
+                    boxShadow: '0 1px 4px #b3e5fc'
+                  }}
+                  onClick={handleRestart}
+                  title="Restart Game"
+                >
+                  Restart
+                </button>
               </div>
               <div style={{
                 fontSize: 13,
