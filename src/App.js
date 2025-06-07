@@ -31,6 +31,10 @@ const App = () => {
   // For mobile touch support
   const [touchStartId, setTouchStartId] = useState(null)
   const [touchEndId, setTouchEndId] = useState(null)
+  // For drag preview
+  const [touchDragImage, setTouchDragImage] = useState(null)
+  const [touchDragPos, setTouchDragPos] = useState({ x: 0, y: 0 })
+  const [isTouchDragging, setIsTouchDragging] = useState(false)
 
   const checkForColumnOfFour = useCallback(() => {
     for (let i = 0; i <= 39; i++) {
@@ -179,12 +183,25 @@ const App = () => {
   const handleTouchStart = (e) => {
     const id = parseInt(e.target.getAttribute('data-id'))
     setTouchStartId(id)
+    setTouchDragImage(currentColorArrangement[id])
+    setIsTouchDragging(true)
+    // Set initial position
+    if (e.touches && e.touches.length > 0) {
+      setTouchDragPos({
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY
+      })
+    }
   }
 
   const handleTouchMove = (e) => {
     // Prevent scrolling while swiping
     e.preventDefault()
     const touch = e.touches[0]
+    setTouchDragPos({
+      x: touch.clientX,
+      y: touch.clientY
+    })
     const element = document.elementFromPoint(touch.clientX, touch.clientY)
     if (element && element.hasAttribute('data-id')) {
       const id = parseInt(element.getAttribute('data-id'))
@@ -193,6 +210,8 @@ const App = () => {
   }
 
   const handleTouchEnd = () => {
+    setIsTouchDragging(false)
+    setTouchDragImage(null)
     if (touchStartId !== null && touchEndId !== null && touchStartId !== touchEndId) {
       // Simulate drag and drop
       const squareBeingDragged = {
@@ -361,6 +380,35 @@ const App = () => {
     currentColorArrangement
   ])
 
+  // Prevent pull-to-refresh on Chrome Android
+  useEffect(() => {
+    const handleTouchStart = (e) => {
+      // Only prevent if at the top of the page and pulling down
+      if (window.scrollY === 0 && e.touches && e.touches.length === 1) {
+        // Check if downward drag (dy > 0) on touchmove
+        let startY = e.touches[0].clientY
+        const handleTouchMove = (moveEvent) => {
+          const dy = moveEvent.touches[0].clientY - startY
+          if (dy > 0) {
+            moveEvent.preventDefault()
+          }
+        }
+        window.addEventListener('touchmove', handleTouchMove, { passive: false })
+        const cleanup = () => {
+          window.removeEventListener('touchmove', handleTouchMove)
+          window.removeEventListener('touchend', cleanup)
+          window.removeEventListener('touchcancel', cleanup)
+        }
+        window.addEventListener('touchend', cleanup)
+        window.addEventListener('touchcancel', cleanup)
+      }
+    }
+    window.addEventListener('touchstart', handleTouchStart, { passive: false })
+    return () => {
+      window.removeEventListener('touchstart', handleTouchStart)
+    }
+  }, [])
+
 
   return (
     <div className="app">
@@ -382,8 +430,30 @@ const App = () => {
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
+            style={{
+              touchAction: 'none'
+            }}
           />
         ))}
+        {/* Touch drag preview image */}
+        {isTouchDragging && touchDragImage && (
+          <img
+            src={touchDragImage}
+            alt="drag-preview"
+            style={{
+              position: 'fixed',
+              left: touchDragPos.x - 32,
+              top: touchDragPos.y - 32,
+              width: 64,
+              height: 64,
+              pointerEvents: 'none',
+              zIndex: 1000,
+              opacity: 0.8,
+              borderRadius: 8,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+            }}
+          />
+        )}
       </div>
       <div>
         <div><ScoreBoard score={scoreDisplay}/></div>
