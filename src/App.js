@@ -15,6 +15,7 @@ import {
 } from './candyImageMap'
 import UrchinDestructionAnimation from './UrchinDestructionAnimation'
 import ThreeWaterBackground from './ThreeWaterBackground'
+import ReefAlert from './ReefAlert'
 
 const width = 8
 let firstTimeTryingToMatchUrchin = true
@@ -39,6 +40,7 @@ const App = () => {
   const [timer, setTimer] = useState(90) // 1 minute and 30 seconds in seconds
   const [timerActive, setTimerActive] = useState(true)
   const [actionsEnabled, setActionsEnabled] = useState(true)
+  const [alertBox, setAlertBox] = useState(null)
 
   // For mobile touch support
   const [touchStartId, setTouchStartId] = useState(null)
@@ -182,9 +184,9 @@ const App = () => {
     setTimeout(() => createBoard(), 0)
   }
 
-  // Helper to alert when actions are disabled
+  // Helper to show custom alert when actions are disabled
   const alertActionsDisabled = () => {
-    alert('Time is up! Please start a new game.');
+    setAlertBox('Time is up! Please start a new game.')
   }
 
   const dragStart = (e) => {
@@ -210,7 +212,7 @@ const App = () => {
     // Check for urchin using the type key
     if (draggedType === urchin || replacedType === urchin) {
       if(firstTimeTryingToMatchUrchin){
-        alert('Urchins must be eaten by large snapper or lobsters! Match one nearby to remove them')
+        setAlertBox('Urchins must be eaten by large snapper or lobsters! Match one nearby to remove them')
         firstTimeTryingToMatchUrchin = false
       } else {
         displayMessage('Urchins must be eaten by large snapper or lobsters!')
@@ -485,6 +487,9 @@ const App = () => {
     <>
       <style>{reefStyles}</style>
       <UrchinDestructionAnimation trigger={urchinAnimationTrigger} />
+      {alertBox && (
+        <ReefAlert message={alertBox} onClose={() => setAlertBox(null)} />
+      )}
       {showLanding ? (
         <LandingPage onStart={() => setShowLanding(false)} />
       ) : (
