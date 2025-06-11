@@ -182,8 +182,16 @@ const App = () => {
     setTimeout(() => createBoard(), 0)
   }
 
+  // Helper to alert when actions are disabled
+  const alertActionsDisabled = () => {
+    alert('Time is up! Please start a new game.');
+  }
+
   const dragStart = (e) => {
-    if (!actionsEnabled) return
+    if (!actionsEnabled) {
+      alertActionsDisabled();
+      return
+    }
     setSquareBeingDragged(e.target)
   }
   const dragDrop = (e) => {
@@ -192,7 +200,6 @@ const App = () => {
   }
   const dragEnd = () => {
     if (!actionsEnabled) return
-
     const squareBeingDraggedId = parseInt(squareBeingDragged.getAttribute('data-id'))
     const squareBeingReplacedId = parseInt(squareBeingReplaced.getAttribute('data-id'))
 
@@ -231,7 +238,10 @@ const App = () => {
 
   // Touch event handlers for mobile
   const handleTouchStart = (e) => {
-    if (!actionsEnabled) return
+    if (!actionsEnabled) {
+      alertActionsDisabled();
+      return
+    }
     const id = parseInt(e.target.getAttribute('data-id'))
     setTouchStartId(id)
     setTouchDragImage(currentColorArrangement[id])
