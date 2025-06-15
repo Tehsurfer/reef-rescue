@@ -16,6 +16,9 @@ import {
 import UrchinDestructionAnimation from './UrchinDestructionAnimation'
 import ThreeWaterBackground from './ThreeWaterBackground'
 import ReefAlert from './ReefAlert'
+import HighScores from './components/HighScores'
+
+const GAME_DURATION = 90 // 1 minute and 30 seconds in seconds
 
 const width = 8
 let firstTimeTryingToMatchUrchin = true
@@ -37,10 +40,12 @@ const App = () => {
   const [messageBoard, setMessageBoard] = useState(null)
   const [showLanding, setShowLanding] = useState(true)
   const [urchinAnimationTrigger, setUrchinAnimationTrigger] = useState(0)
-  const [timer, setTimer] = useState(90) // 1 minute and 30 seconds in seconds
+  const [timer, setTimer] = useState(GAME_DURATION)
   const [timerActive, setTimerActive] = useState(true)
   const [actionsEnabled, setActionsEnabled] = useState(true)
   const [alertBox, setAlertBox] = useState(null)
+  const [playerName, setPlayerName] = useState('')
+  const [submittedPlayerName, setSubmittedPlayerName] = useState('')
 
   // For mobile touch support
   const [touchStartId, setTouchStartId] = useState(null)
@@ -173,7 +178,7 @@ const App = () => {
 
   // Restart handler
   const handleRestart = () => {
-    setTimer(120)
+    setTimer(GAME_DURATION)
     setTimerActive(true)
     setActionsEnabled(true)
     setScoreDisplay(0)
@@ -490,6 +495,104 @@ const App = () => {
       {alertBox && (
         <ReefAlert message={alertBox} onClose={() => setAlertBox(null)} />
       )}
+      {/* Remove HighScores from the modal */}
+      {!actionsEnabled && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(0,0,0,0.18)',
+          zIndex: 30000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <div style={{
+            background: '#fff',
+            borderRadius: 16,
+            boxShadow: '0 4px 24px #0288d1aa',
+            padding: 32,
+            minWidth: 320,
+            maxWidth: 400,
+            textAlign: 'center',
+            position: 'relative'
+          }}>
+            <h2 style={{
+              color: '#0288d1',
+              fontFamily: '"Trebuchet MS", "Verdana", "Arial", sans-serif',
+              fontWeight: 700,
+              marginBottom: 12
+            }}>Game Over!</h2>
+            <div style={{marginBottom: 16}}>
+              <span style={{color: '#0288d1', fontWeight: 600}}>Your Score: </span>
+              <span style={{color: '#43e97b', fontWeight: 700, fontSize: 20}}>{scoreDisplay}</span>
+            </div>
+            {/* Player name input for high scores */}
+            {!submittedPlayerName && (
+              <div style={{marginBottom: 16}}>
+                <input
+                  type="text"
+                  placeholder="Enter your name"
+                  value={playerName}
+                  onChange={e => setPlayerName(e.target.value.slice(0, 16))}
+                  maxLength={16}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: 6,
+                    border: '1.5px solid #0288d1',
+                    fontSize: 16,
+                    marginRight: 8
+                  }}
+                />
+              </div>
+            )}
+            <button
+              style={{
+                marginTop: 18,
+                background: '#fff',
+                color: '#0288d1',
+                border: '1.5px solid #0288d1',
+                borderRadius: 6,
+                fontWeight: 700,
+                fontSize: 15,
+                padding: '6px 22px',
+                cursor: 'pointer',
+                boxShadow: '0 1px 4px #b3e5fc'
+              }}
+              onClick={() => {
+                if (!playerName) {
+                  alert('Please enter your name to submit your score!')
+                  return
+                }
+                setSubmittedPlayerName(playerName)
+              }}
+              disabled={!playerName}
+            >
+              Submit Score
+            </button>
+            <button
+              style={{
+                marginTop: 12,
+                background: '#0288d1',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 6,
+                fontWeight: 700,
+                fontSize: 15,
+                padding: '6px 22px',
+                cursor: 'pointer',
+                boxShadow: '0 1px 4px #b3e5fc',
+                marginLeft: 8
+              }}
+              onClick={() => setActionsEnabled(true)}
+            >
+              Ok
+            </button>
+          </div>
+        </div>
+      )}
       {showLanding ? (
         <LandingPage onStart={() => setShowLanding(false)} />
       ) : (
@@ -624,6 +727,9 @@ const App = () => {
               }}>
                 {messageBoard}
               </div>
+            </div>
+            <div style={{marginLeft: 18}}>
+                <HighScores latestScore={scoreDisplay} playerName={submittedPlayerName || playerName} />
             </div>
           </div>
         </div>
