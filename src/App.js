@@ -18,7 +18,7 @@ import ThreeWaterBackground from './ThreeWaterBackground'
 import ReefAlert from './ReefAlert'
 import HighScores from './components/HighScores'
 
-const GAME_DURATION = 15 // 1 minute and 30 seconds in seconds
+const GAME_DURATION = 90 // 1 minute and 30 seconds in seconds
 
 const width = 8
 let firstTimeTryingToMatchUrchin = true
