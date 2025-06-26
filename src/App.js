@@ -18,7 +18,7 @@ import ThreeWaterBackground from './ThreeWaterBackground'
 import ReefAlert from './ReefAlert'
 import HighScores from './components/HighScores'
 
-const GAME_DURATION = 90 // 1 minute and 30 seconds in seconds
+const GAME_DURATION = 15 // 1 minute and 30 seconds in seconds
 
 const width = 8
 let firstTimeTryingToMatchUrchin = true
@@ -46,6 +46,7 @@ const App = () => {
   const [alertBox, setAlertBox] = useState(null)
   const [playerName, setPlayerName] = useState('')
   const [submittedPlayerName, setSubmittedPlayerName] = useState('')
+  const [scoreSubmitted, setScoreSubmitted] = useState(false)
 
   // For mobile touch support
   const [touchStartId, setTouchStartId] = useState(null)
@@ -185,6 +186,8 @@ const App = () => {
     setUrchinsDestroyed(0)
     setMessageBoard(null)
     setShowLanding(false)
+    setScoreSubmitted(false)
+    setSubmittedPlayerName('')
     setCurrentColorArrangement([])
     setTimeout(() => createBoard(), 0)
   }
@@ -496,7 +499,7 @@ const App = () => {
         <ReefAlert message={alertBox} onClose={() => setAlertBox(null)} />
       )}
       {/* Remove HighScores from the modal */}
-      {!actionsEnabled && (
+      {(!actionsEnabled && !scoreSubmitted) && (
         <div style={{
           position: 'fixed',
           top: 0,
@@ -566,9 +569,10 @@ const App = () => {
                   alert('Please enter your name to submit your score!')
                   return
                 }
+                setScoreSubmitted(true)
                 setSubmittedPlayerName(playerName)
               }}
-              disabled={!playerName}
+              disabled={!playerName || scoreSubmitted}
             >
               Submit Score
             </button>
@@ -729,7 +733,11 @@ const App = () => {
               </div>
             </div>
             <div style={{marginLeft: 18}}>
-                <HighScores latestScore={scoreDisplay} playerName={submittedPlayerName || playerName} />
+                <HighScores 
+                  latestScore={scoreDisplay}
+                  playerName={submittedPlayerName} 
+                  urchinsDestroyed={urchinsDestroyed}
+                />
             </div>
           </div>
         </div>
