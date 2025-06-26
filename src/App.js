@@ -374,12 +374,8 @@ const App = () => {
 
     const matchCheckList = [isAColumnOfFour, isARowOfFour, isAColumnOfThree, isARowOfThree]
     let foundMatches = matchCheckList.filter(match=>match !== undefined)
-    console.log(matchCheckList)
-    console.log('foundMAtches:', foundMatches)
     if (foundMatches.length > 0) {
-      console.log('found matches!')
       urchinNearbyCheck(foundMatches)
-      console.log('finished urchin check')
       return foundMatches
 
     } else return false
@@ -397,13 +393,10 @@ const App = () => {
         if (match.animal.includes('lobster') || match.animal.includes('snapper'))
         match.squares.forEach(index => {
           nearby = nearbyIds(index)
-          console.log(nearby)
           nearby.forEach(nearbyId => {
             const animalType = currentColorArrangement[nearbyId]
-            console.log('animaltype', animalType)
             if(animalType && animalType.includes('urchin')){
               currentColorArrangement[nearbyId] = blank
-              console.log('got urchin!!')
               urchinsDestroyedThisRoundCount += 1
               setScoreDisplay((score) => score + 10)
               setUrchinsDestroyed((numdes) => numdes + 1)
