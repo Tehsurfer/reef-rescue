@@ -50,10 +50,11 @@ const ThreeWaterBackground = () => {
           vec3 topColor = vec3(0.098, 0.58, 0.843);     // medium blue
           vec3 base = mix(topColor, bottomColor, y);
 
-          // Add a subtle moving highlight as a sine wave
-          float wave = 0.10 * sin(6.0 * y + t * 1.2 + x * 2.0);
+          // Sine wave in the x direction (horizontal wave), move wave higher by shifting y
+          float yOffset = 0.43; // Move the wave higher
+          float wave = 0.10 * sin(8.0 * x + t * 1.8 + (y) * 8.0) + yOffset;
           float highlight = smoothstep(0.35 + wave, 0.45 + wave, y);
-          vec3 color = mix(base, vec3(0.9, 0.98, 1.0), highlight * 0.12);
+          vec3 color = mix(base, vec3(0.9, 0.98, 1.0), highlight * 0.8);
 
           gl_FragColor = vec4(color, 0.92);
         }
