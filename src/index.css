@@ -15,3 +15,8 @@
   width: 70px;
   height: 70px;
 }
+
+.reef-game-board {
+  overscroll-behavior: none;
+  overflow: hidden;
+}

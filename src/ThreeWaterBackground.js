@@ -84,10 +84,13 @@ const ThreeWaterBackground = () => {
       camera.bottom = -viewSize / 2
       camera.aspect = aspect
       camera.updateProjectionMatrix()
-      // Optionally, resize the plane geometry if needed
-      plane.scale.set(aspect, 1, 1)
+      // Fill both horizontally and vertically (cover mode)
+      const scaleX = Math.max(aspect, 1)
+      const scaleY = Math.max(1 / aspect, 1)
+      plane.scale.set(scaleX, scaleY, 1)
     }
     window.addEventListener('resize', handleResize)
+    handleResize()
 
     return () => {
       cancelAnimationFrame(frameId)
