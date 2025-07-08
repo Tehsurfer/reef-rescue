@@ -16,6 +16,24 @@ const candyImageMap = {
   [blank]: <img src={blank} alt="blank" draggable={false} style={{width: '100%', height: '100%', aspectRatio: '1/1', objectFit: 'contain', pointerEvents: 'none'}} />,
 }
 
+const tileMapForRolls = {
+  [snapper]: <img src={snapper} alt="snapper" draggable={false} style={{width: '50px', height: '50px', aspectRatio: '1/1', objectFit: 'contain', pointerEvents: 'none'}} />,
+  [kelp]: <img src={kelp} alt="purple" draggable={false} style={{width: '50px', height: '50px', aspectRatio: '1/1', objectFit: 'contain', pointerEvents: 'none'}} />,
+  [rock]: <img src={rock} alt="red" draggable={false} style={{width: '50px', height: '50px', aspectRatio: '1/1', objectFit: 'contain', pointerEvents: 'none'}} />,
+  [crab]: <img src={crab} alt="yellow" draggable={false} style={{width: '50px', height: '50px', aspectRatio: '1/1', objectFit: 'contain', pointerEvents: 'none'}} />,
+  [lobster]: <img src={lobster} alt="lobster" draggable={false} style={{width: '50px', height: '50px', aspectRatio: '1/1', objectFit: 'contain', pointerEvents: 'none'}} />,
+  [urchin]: <img src={urchin} alt="urchin" draggable={false} style={{width: '50px', height: '50px', aspectRatio: '1/1', objectFit: 'contain', pointerEvents: 'none'}} />,
+}
+
+const tileMapForHighScores = {
+  'snapper': snapper,
+  'kelp': kelp,
+  'rock': rock,
+  'crab': crab,
+  'lobster': lobster,
+  'urchin': urchin
+}
+
 export {
   snapper,
   lobster,
@@ -24,5 +42,7 @@ export {
   rock,
   crab,
   blank,
-  candyImageMap
+  candyImageMap,
+  tileMapForRolls,
+  tileMapForHighScores
 }

@@ -36,7 +36,8 @@ const GameBoard = ({
   setUrchinAnimationTrigger,
   onRestart,
   restartKey,
-  tileOdds // <-- add this prop
+  tileOdds,
+  pointsMultiplier // <-- add this prop
 }) => {
   const [currentColorArrangement, setCurrentTileArrangement] = useState([])
   const [squareBeingDragged, setSquareBeingDragged] = useState(null)
@@ -58,7 +59,7 @@ const GameBoard = ({
       const isBlank = currentColorArrangement[i] === blank
 
       if (columnOfFour.every(square => currentColorArrangement[square] === decidedColor && !isBlank)) {
-        setScoreDisplay((score) => score + 4)
+        setScoreDisplay((score) => score + 4 * (pointsMultiplier || 1))
         const match = columnOfFour
         const animal = currentColorArrangement[columnOfFour[0]]
         columnOfFour.forEach(square => currentColorArrangement[square] = blank)
@@ -68,7 +69,7 @@ const GameBoard = ({
         }
       }
     }
-  }, [currentColorArrangement, setScoreDisplay])
+  }, [currentColorArrangement, setScoreDisplay, pointsMultiplier])
 
   const checkForRowOfFour = useCallback(() => {
     for (let i = 0; i < 64; i++) {
@@ -80,7 +81,7 @@ const GameBoard = ({
       if (notValid.includes(i)) continue
 
       if (rowOfFour.every(square => currentColorArrangement[square] === decidedColor && !isBlank)) {
-        setScoreDisplay((score) => score + 4)
+        setScoreDisplay((score) => score + 4 * (pointsMultiplier || 1))
         const match = rowOfFour
         const animal = currentColorArrangement[rowOfFour[0]]
         rowOfFour.forEach(square => currentColorArrangement[square] = blank)
@@ -90,7 +91,7 @@ const GameBoard = ({
         }
       }
     }
-  }, [currentColorArrangement, setScoreDisplay])
+  }, [currentColorArrangement, setScoreDisplay, pointsMultiplier])
 
   const checkForColumnOfThree = useCallback(() => {
     for (let i = 0; i <= 47; i++) {
@@ -99,7 +100,7 @@ const GameBoard = ({
       const isBlank = currentColorArrangement[i] === blank
 
       if (columnOfThree.every(square => currentColorArrangement[square] === decidedColor && !isBlank)) {
-        setScoreDisplay((score) => score + 3)
+        setScoreDisplay((score) => score + 3 * (pointsMultiplier || 1))
         const match = columnOfThree
         const animal = currentColorArrangement[columnOfThree[0]]
         columnOfThree.forEach(square => currentColorArrangement[square] = blank)
@@ -109,7 +110,7 @@ const GameBoard = ({
         }
       }
     }
-  }, [currentColorArrangement, setScoreDisplay])
+  }, [currentColorArrangement, setScoreDisplay, pointsMultiplier])
 
   const checkForRowOfThree = useCallback(() => {
     for (let i = 0; i < 64; i++) {
@@ -121,7 +122,7 @@ const GameBoard = ({
       if (notValid.includes(i)) continue
 
       if (rowOfThree.every(square => currentColorArrangement[square] === decidedColor && !isBlank)) {
-        setScoreDisplay((score) => score + 3)
+        setScoreDisplay((score) => score + 3 * (pointsMultiplier || 1))
         const match = rowOfThree
         const animal = currentColorArrangement[rowOfThree[0]]
         rowOfThree.forEach(square => currentColorArrangement[square] = blank)
@@ -131,7 +132,7 @@ const GameBoard = ({
         }
       }
     }
-  }, [currentColorArrangement, setScoreDisplay])
+  }, [currentColorArrangement, setScoreDisplay, pointsMultiplier])
 
   const moveIntoSquareBelow = useCallback(() => {
     for (let i = 0; i <= 55; i++) {

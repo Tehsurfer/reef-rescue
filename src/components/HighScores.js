@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react'
+import { tileMapForHighScores } from '../candyImageMap'
 
 const BIN_ID = process.env.REACT_APP_BIN_ID || console.error('REACT_APP_BIN_ID is not set')
 const API_KEY = process.env.REACT_APP_API_KEY || console.error('REACT_APP_API_KEY is not set')
 
 const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`
 
-const HighScores = ({ latestScore, playerName, urchinsDestroyed}) => {
+const HighScores = ({ latestScore, playerName, urchinsDestroyed, finalHits }) => {
   const [scores, setScores] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -44,7 +45,13 @@ const HighScores = ({ latestScore, playerName, urchinsDestroyed}) => {
       // Add new score and sort
       const newScores = [
         ...oldScores,
-        { name: playerName, score: latestScore, urchinsDestroyed: urchinsDestroyed, date: new Date().toISOString() }
+        {
+          name: playerName,
+          score: latestScore,
+          urchinsDestroyed: urchinsDestroyed,
+          hits: Array.isArray(finalHits) && finalHits.length > 0 ? finalHits : undefined,
+          date: new Date().toISOString()
+        }
       ]
         .sort((a, b) => b.score - a.score)
         .slice(0, 10) // Keep top 10
@@ -112,6 +119,7 @@ const HighScores = ({ latestScore, playerName, urchinsDestroyed}) => {
             <th style={{padding: '6px 4px', color: '#0288d1', fontWeight: 700, fontSize: 15, borderBottom: '1px solid #b3e5fc'}}>Name</th>
             <th style={{padding: '6px 4px', color: '#0288d1', fontWeight: 700, fontSize: 15, borderBottom: '1px solid #b3e5fc'}}>Score</th>
             <th style={{padding: '6px 4px', color: '#0288d1', fontWeight: 700, fontSize: 15, borderBottom: '1px solid #b3e5fc'}}>Urchins</th>
+            <th style={{padding: '6px 4px', color: '#0288d1', fontWeight: 700, fontSize: 15, borderBottom: '1px solid #b3e5fc'}}>Hits</th>
             <th style={{padding: '6px 4px', color: '#0288d1', fontWeight: 700, fontSize: 15, borderBottom: '1px solid #b3e5fc'}}>Date</th>
           </tr>
         </thead>
@@ -146,11 +154,45 @@ const HighScores = ({ latestScore, playerName, urchinsDestroyed}) => {
               }}>{entry.urchinsDestroyed || 'N/A'}</td>
               <td style={{
                 padding: '4px 4px',
+                color: '#0288d1',
+                fontWeight: 600,
+                textAlign: 'center',
+                fontSize: 13
+              }}>
+                {entry.hits ? entry.hits.map((hit, i) =>
+                  tileMapForHighScores[hit] ? (
+                    <img
+                      key={i}
+                      src={tileMapForHighScores[hit]}
+                      alt={hit}
+                      style={{
+                        width: 20,
+                        height: 20,
+                        objectFit: 'contain',
+                        verticalAlign: 'middle',
+                        marginRight: 2
+                      }}
+                    />
+                  ) : null
+                ) : 'N/A'}
+              </td>
+              <td style={{
+                padding: '4px 4px',
                 color: '#888',
                 fontWeight: 400,
-                fontSize: 13,
+                fontSize: 11,
                 textAlign: 'center'
-              }}>{entry.date ? new Date(entry.date).toLocaleDateString() : ''}</td>
+              }}>
+                {entry.date
+                  ? (() => {
+                      const d = new Date(entry.date)
+                      const day = d.getDate().toString().padStart(2, '0')
+                      const month = (d.getMonth() + 1).toString().padStart(2, '0')
+                      const year = d.getFullYear().toString().slice(-2)
+                      return `${day}/${month}/${year}`
+                    })()
+                  : ''}
+              </td>
             </tr>
           ))}
         </tbody>

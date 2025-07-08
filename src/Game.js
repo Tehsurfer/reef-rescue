@@ -10,7 +10,9 @@ import GameBoard from './GameBoard'
 import PreGameCountdown from './PreGameCountdown'
 import PreGameRoll from './PreGameRoll'
 
-const GAME_DURATION = 10 // 1 minute and 30 seconds in seconds
+import gameboardPlaceholder from './images/game-placeholder.png'
+
+const GAME_DURATION = 75 // 1 minute and 30 seconds in seconds
 
 const GAME_STATE = {
   PREGAME_ROLL: 'PREGAME_ROLL',
@@ -43,6 +45,8 @@ const Game = () => {
   const [restartKey, setRestartKey] = useState(0)
   const [gameState, setGameState] = useState(GAME_STATE.PREGAME_ROLL)
   const [tileOdds, setTileOdds] = useState(defaultTileOdds)
+  const [pointsMultiplier, setPointsMultiplier] = useState(1)
+  const [finalHits, setFinalHits] = useState([]) // <-- add this state
 
   // Timer effect (countdown)
   useEffect(() => {
@@ -214,27 +218,39 @@ const Game = () => {
         <ReefDecorSVGs />
         <div className="reef-game-container" style={{ position: 'relative', zIndex: 1 }}>
           <div style={{position: 'relative'}}>
-            <GameBoard
-              timerActive={timerActive}
-              setTimerActive={setTimerActive}
-              actionsEnabled={gameActive}
-              setActionsEnabled={setActionsEnabled}
-              displayMessage={displayMessage}
-              scoreDisplay={scoreDisplay}
-              setScoreDisplay={setScoreDisplay}
-              urchinsDestroyed={urchinsDestroyed}
-              setUrchinsDestroyed={setUrchinsDestroyed}
-              setUrchinAnimationTrigger={setUrchinAnimationTrigger}
-              onRestart={handleRestart}
-              restartKey={restartKey}
-              tileOdds={tileOdds}
-            />
+            {gameState === GAME_STATE.PLAYING && (
+              <GameBoard
+                timerActive={timerActive}
+                setTimerActive={setTimerActive}
+                actionsEnabled={gameActive}
+                setActionsEnabled={setActionsEnabled}
+                displayMessage={displayMessage}
+                scoreDisplay={scoreDisplay}
+                setScoreDisplay={setScoreDisplay}
+                urchinsDestroyed={urchinsDestroyed}
+                setUrchinsDestroyed={setUrchinsDestroyed}
+                setUrchinAnimationTrigger={setUrchinAnimationTrigger}
+                onRestart={handleRestart}
+                restartKey={restartKey}
+                tileOdds={tileOdds}
+                pointsMultiplier={pointsMultiplier}
+              />
+            )}
+            {gameState !== GAME_STATE.PLAYING && (
+              <img
+                src={gameboardPlaceholder}
+                alt="Game Placeholder"
+                className='game'
+              />
+            )}
             {gameState === GAME_STATE.COUNTDOWN && (
               <PreGameCountdown onComplete={() => setGameState(GAME_STATE.PLAYING)} />
             )}
             {gameState === GAME_STATE.PREGAME_ROLL && (
               <PreGameRoll
                 setTileOdds={setTileOdds}
+                setPointsMultiplier={setPointsMultiplier}
+                setFinalHits={setFinalHits} // <-- pass setter
                 initialOdds={tileOdds}
                 onRollComplete={() => setGameState(GAME_STATE.COUNTDOWN)}
               />
@@ -318,6 +334,7 @@ const Game = () => {
               latestScore={scoreDisplay}
               playerName={submittedPlayerName} 
               urchinsDestroyed={urchinsDestroyed}
+              finalHits={finalHits}
             />
           </div>
         </div>
