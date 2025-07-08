@@ -7,8 +7,26 @@ import ThreeWaterBackground from './ThreeWaterBackground'
 import ReefAlert from './ReefAlert'
 import HighScores from './components/HighScores'
 import GameBoard from './GameBoard'
+import PreGameCountdown from './PreGameCountdown'
+import PreGameRoll from './PreGameRoll'
 
 const GAME_DURATION = 10 // 1 minute and 30 seconds in seconds
+
+const GAME_STATE = {
+  PREGAME_ROLL: 'PREGAME_ROLL',
+  COUNTDOWN: 'COUNTDOWN',
+  PLAYING: 'PLAYING',
+  GAME_OVER: 'GAME_OVER'
+}
+
+const defaultTileOdds = {
+  snapper: 0.15,
+  kelp: 0.20,
+  rock: 0.20,
+  crab: 0.20,
+  lobster: 0.15,
+  urchin: 0.10
+}
 
 const Game = () => {
   const [scoreDisplay, setScoreDisplay] = useState(0)
@@ -23,23 +41,38 @@ const Game = () => {
   const [submittedPlayerName, setSubmittedPlayerName] = useState('')
   const [scoreSubmitted, setScoreSubmitted] = useState(false)
   const [restartKey, setRestartKey] = useState(0)
+  const [gameState, setGameState] = useState(GAME_STATE.PREGAME_ROLL)
+  const [tileOdds, setTileOdds] = useState(defaultTileOdds)
 
   // Timer effect (countdown)
   useEffect(() => {
-    if (!timerActive) return
+    if (gameState !== GAME_STATE.PLAYING) return
     if (timer <= 0) return
     const interval = setInterval(() => {
       setTimer(t => {
         if (t <= 1) {
-          setTimerActive(false)
-          setActionsEnabled(false) // Disable actions when timer hits 0
+          setGameState(GAME_STATE.GAME_OVER)
           return 0
         }
         return t - 1
       })
     }, 1000)
     return () => clearInterval(interval)
-  }, [timerActive, timer])
+  }, [gameState, timer])
+
+  // Start game after countdown
+  useEffect(() => {
+    if (gameState === GAME_STATE.COUNTDOWN) {
+      setActionsEnabled(false)
+      setTimerActive(false)
+    } else if (gameState === GAME_STATE.PLAYING) {
+      setActionsEnabled(true)
+      setTimerActive(true)
+    } else if (gameState === GAME_STATE.GAME_OVER) {
+      setActionsEnabled(false)
+      setTimerActive(false)
+    }
+  }, [gameState])
 
   // Display message helper for board
   const displayMessage = (message) => {
@@ -49,20 +82,22 @@ const Game = () => {
 
   // Restart handler
   const handleRestart = () => {
+    setGameState(GAME_STATE.PREGAME_ROLL)
     setTimer(GAME_DURATION)
-    setTimerActive(true)
-    setActionsEnabled(true)
     setScoreDisplay(0)
     setUrchinsDestroyed(0)
     setMessageBoard(null)
     setScoreSubmitted(false)
     setSubmittedPlayerName('')
     setUrchinAnimationTrigger(0)
-    setRestartKey(k => k + 1) // trigger board reset
+    setRestartKey(k => k + 1)
   }
-  
-  // Add a derived value for gameActive
-  const gameActive = actionsEnabled && timer > 0 && timerActive
+
+  // Only show modal if game is over and not in countdown
+  const showGameOverModal = gameState === GAME_STATE.GAME_OVER && !scoreSubmitted
+
+  // Only allow board actions if playing
+  const gameActive = gameState === GAME_STATE.PLAYING && timer > 0 && timerActive
 
   return (
     <>
@@ -72,7 +107,7 @@ const Game = () => {
         <ReefAlert message={alertBox} onClose={() => setAlertBox(null)} />
       )}
       {/* Game over modal */}
-      {(!actionsEnabled && !scoreSubmitted) && (
+      {showGameOverModal && (
         <div style={{
           position: 'fixed',
           top: 0,
@@ -162,9 +197,9 @@ const Game = () => {
                 boxShadow: '0 1px 4px #b3e5fc',
                 marginLeft: 8
               }}
-              onClick={() => setActionsEnabled(true)}
+              onClick={handleRestart}
             >
-              Ok
+              Restart
             </button>
           </div>
         </div>
@@ -178,20 +213,33 @@ const Game = () => {
         <ThreeWaterBackground />
         <ReefDecorSVGs />
         <div className="reef-game-container" style={{ position: 'relative', zIndex: 1 }}>
-          <GameBoard
-            timerActive={timerActive}
-            setTimerActive={setTimerActive}
-            actionsEnabled={gameActive}
-            setActionsEnabled={setActionsEnabled}
-            displayMessage={displayMessage}
-            scoreDisplay={scoreDisplay}
-            setScoreDisplay={setScoreDisplay}
-            urchinsDestroyed={urchinsDestroyed}
-            setUrchinsDestroyed={setUrchinsDestroyed}
-            setUrchinAnimationTrigger={setUrchinAnimationTrigger}
-            onRestart={handleRestart}
-            restartKey={restartKey} // pass restartKey
-          />
+          <div style={{position: 'relative'}}>
+            <GameBoard
+              timerActive={timerActive}
+              setTimerActive={setTimerActive}
+              actionsEnabled={gameActive}
+              setActionsEnabled={setActionsEnabled}
+              displayMessage={displayMessage}
+              scoreDisplay={scoreDisplay}
+              setScoreDisplay={setScoreDisplay}
+              urchinsDestroyed={urchinsDestroyed}
+              setUrchinsDestroyed={setUrchinsDestroyed}
+              setUrchinAnimationTrigger={setUrchinAnimationTrigger}
+              onRestart={handleRestart}
+              restartKey={restartKey}
+              tileOdds={tileOdds}
+            />
+            {gameState === GAME_STATE.COUNTDOWN && (
+              <PreGameCountdown onComplete={() => setGameState(GAME_STATE.PLAYING)} />
+            )}
+            {gameState === GAME_STATE.PREGAME_ROLL && (
+              <PreGameRoll
+                setTileOdds={setTileOdds}
+                initialOdds={tileOdds}
+                onRollComplete={() => setGameState(GAME_STATE.COUNTDOWN)}
+              />
+            )}
+          </div>
           <div className="reef-scoreboard">
             <div style={{
               fontSize: 20,

@@ -21,16 +21,6 @@ const candyColors = [
   urchin
 ]
 
-// Default odds for each tile type
-let tileOdds = {
-  snapper: 0.15,
-  kelp: 0.20,
-  rock: 0.20,
-  crab: 0.20,
-  lobster: 0.15,
-  urchin: 0.10
-}
-
 let firstTimeTryingToMatchUrchin = true
 
 const GameBoard = ({
@@ -45,7 +35,8 @@ const GameBoard = ({
   setUrchinsDestroyed,
   setUrchinAnimationTrigger,
   onRestart,
-  restartKey // <-- add this prop
+  restartKey,
+  tileOdds // <-- add this prop
 }) => {
   const [currentColorArrangement, setCurrentTileArrangement] = useState([])
   const [squareBeingDragged, setSquareBeingDragged] = useState(null)
@@ -362,20 +353,9 @@ const GameBoard = ({
   }
 
   // --- Select tile from random number ---
-  const selectRandomTile = () => {
-    // Build a flat array of tile images based on odds, then pick randomly
-    // This is slow if called many times because it builds a new array every call!
-    // Instead, precompute a weighted array ONCE, and pick from it.
-
-    // BETTER: Precompute a weighted array once, then pick from it.
-    // We'll do this outside the function, only once.
-    return weightedTileArray[Math.floor(Math.random() * weightedTileArray.length)]
-  }
-
-  // Build weighted array ONCE at module scope
+  // Build weighted array ONCE per tileOdds
   const weightedTileArray = (() => {
     const arr = []
-    // tileOdds must match the order of candyColors
     const oddsArr = [
       tileOdds.snapper,
       tileOdds.kelp,
@@ -392,6 +372,10 @@ const GameBoard = ({
     }
     return arr
   })()
+
+  const selectRandomTile = () => {
+    return weightedTileArray[Math.floor(Math.random() * weightedTileArray.length)]
+  }
 
   // --- Board setup and game loop ---
   const createBoard = () => {
