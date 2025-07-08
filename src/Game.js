@@ -60,12 +60,7 @@ const Game = () => {
     setUrchinAnimationTrigger(0)
     setRestartKey(k => k + 1) // trigger board reset
   }
-
-  // Helper to show custom alert when actions are disabled
-  const alertActionsDisabled = () => {
-    setAlertBox('Time is up! Please start a new game.')
-  }
-
+  
   // Add a derived value for gameActive
   const gameActive = actionsEnabled && timer > 0 && timerActive
 

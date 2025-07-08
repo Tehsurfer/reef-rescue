@@ -3,9 +3,9 @@ import {
   snapper,
   lobster,
   urchin,
-  purpleCandy,
-  redCandy,
-  yellowCandy,
+  kelp,
+  rock,
+  crab,
   blank,
   candyImageMap
 } from './candyImageMap'
@@ -14,9 +14,9 @@ import ReefAlert from './ReefAlert'
 const width = 8
 const candyColors = [
   snapper,
-  purpleCandy,
-  redCandy,
-  yellowCandy,
+  kelp,
+  rock,
+  crab,
   lobster,
   urchin
 ]
