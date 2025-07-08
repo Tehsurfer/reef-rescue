@@ -21,6 +21,16 @@ const candyColors = [
   urchin
 ]
 
+// Default odds for each tile type
+let tileOdds = {
+  snapper: 0.15,
+  kelp: 0.20,
+  rock: 0.20,
+  crab: 0.20,
+  lobster: 0.15,
+  urchin: 0.10
+}
+
 let firstTimeTryingToMatchUrchin = true
 
 const GameBoard = ({
@@ -37,7 +47,7 @@ const GameBoard = ({
   onRestart,
   restartKey // <-- add this prop
 }) => {
-  const [currentColorArrangement, setCurrentColorArrangement] = useState([])
+  const [currentColorArrangement, setCurrentTileArrangement] = useState([])
   const [squareBeingDragged, setSquareBeingDragged] = useState(null)
   const [squareBeingReplaced, setSquareBeingReplaced] = useState(null)
   // For mobile touch support
@@ -138,8 +148,7 @@ const GameBoard = ({
       const isFirstRow = firstRow.includes(i)
 
       if (isFirstRow && currentColorArrangement[i] === blank) {
-        let randomNumber = Math.floor(Math.random() * candyColors.length)
-        currentColorArrangement[i] = candyColors[randomNumber]
+        currentColorArrangement[i] = selectRandomTile()
       }
 
       if ((currentColorArrangement[i + width]) === blank) {
@@ -250,7 +259,7 @@ const GameBoard = ({
     } else {
       currentColorArrangement[squareBeingReplacedId] = replacedType
       currentColorArrangement[squareBeingDraggedId] = draggedType
-      setCurrentColorArrangement([...currentColorArrangement])
+      setCurrentTileArrangement([...currentColorArrangement])
     }
   }
 
@@ -348,25 +357,50 @@ const GameBoard = ({
     } else {
       currentColorArrangement[squareBeingReplacedId] = replacedType
       currentColorArrangement[squareBeingDraggedId] = draggedType
-      setCurrentColorArrangement([...currentColorArrangement])
+      setCurrentTileArrangement([...currentColorArrangement])
     }
   }
 
+  // --- Select tile from random number ---
+  const selectRandomTile = () => {
+    // Build a flat array of tile images based on odds, then pick randomly
+    // This is slow if called many times because it builds a new array every call!
+    // Instead, precompute a weighted array ONCE, and pick from it.
+
+    // BETTER: Precompute a weighted array once, then pick from it.
+    // We'll do this outside the function, only once.
+    return weightedTileArray[Math.floor(Math.random() * weightedTileArray.length)]
+  }
+
+  // Build weighted array ONCE at module scope
+  const weightedTileArray = (() => {
+    const arr = []
+    // tileOdds must match the order of candyColors
+    const oddsArr = [
+      tileOdds.snapper,
+      tileOdds.kelp,
+      tileOdds.rock,
+      tileOdds.crab,
+      tileOdds.lobster,
+      tileOdds.urchin
+    ]
+    for (let i = 0; i < candyColors.length; ++i) {
+      const count = Math.round(oddsArr[i] * 100)
+      for (let j = 0; j < count; ++j) {
+        arr.push(candyColors[i])
+      }
+    }
+    return arr
+  })()
 
   // --- Board setup and game loop ---
   const createBoard = () => {
-    const randomColorArrangement = []
+    const randomTileArrangement = []
     for (let i = 0; i < width * width; i++) {
-      let randNum = Math.floor(Math.random() * candyColors.length)
-      if (randNum === candyColors.length - 1) {
-        if (Math.random > 0.5){
-          randNum = Math.floor(Math.random() * candyColors.length)
-        }
-      }
-      const randomColor = candyColors[randNum]
-      randomColorArrangement.push(randomColor)
+      const randomTile = selectRandomTile()
+      randomTileArrangement.push(randomTile)
     }
-    setCurrentColorArrangement(randomColorArrangement)
+    setCurrentTileArrangement(randomTileArrangement)
   }
 
   // Remake the board when restartKey changes
@@ -381,7 +415,7 @@ const GameBoard = ({
       checkForColumnOfThree()
       checkForRowOfThree()
       moveIntoSquareBelow()
-      setCurrentColorArrangement([...currentColorArrangement])
+      setCurrentTileArrangement([...currentColorArrangement])
     }, 100)
     return () => clearInterval(timer)
   }, [
